@@ -3,8 +3,6 @@ import Bcrypt from "bcryptjs";
 
 import { createUser, fetchUser, IUser } from "./actions";
 
-const SALT = Bcrypt.genSaltSync(10);
-
 enum LoginTypes {
     SIGN_IN = "SIGN_IN",
     SIGN_UP = "SIGN_UP",
@@ -33,7 +31,8 @@ export const LoginContainer: React.FC<ILoginContainerProps> = (props: ILoginCont
         } else {
             Bcrypt.genSalt(10, (err, salt) => {
                 Bcrypt.hash(password, salt, async function(err, hash) {
-                    await createUser(username, hash);
+                    const user = await createUser(username, hash);
+                    props.onSuccess(user);
                 });
             });
         }
