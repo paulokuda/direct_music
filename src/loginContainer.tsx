@@ -21,11 +21,9 @@ export const LoginContainer: React.FC<ILoginContainerProps> = (props: ILoginCont
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const hashedPassword = Bcrypt.hashSync(password, SALT);
         if (loginType === LoginTypes.SIGN_IN) {
             const user = await fetchUser(username, password);
             Bcrypt.compare(password, user.fields.password, function(err, isLoginValid) {
-                console.log("isLoginValid", isLoginValid)
                 if (isLoginValid) {
                     props.onSuccess(user);
                 } else {
@@ -33,33 +31,21 @@ export const LoginContainer: React.FC<ILoginContainerProps> = (props: ILoginCont
                 }
             });
         } else {
-            console.log("password for signin: ", password);
-            try {
-                Bcrypt.genSalt(10, (err, salt) => {
-                    Bcrypt.hash(password, salt, async function(err, hash) {
-                        console.log("hash to save: ", hash);
-                        await createUser(username, hash);
-                    });
+            Bcrypt.genSalt(10, (err, salt) => {
+                Bcrypt.hash(password, salt, async function(err, hash) {
+                    await createUser(username, hash);
                 });
-            } finally {
-                console.log("finally");
-            }
+            });
         }
     }
     const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("username", event.currentTarget.value);
         setUsername(event.currentTarget.value);
     }
     const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("username", event.currentTarget.value);
         setPassword(event.currentTarget.value);
     }
-    const renderButtonText = () => {
-        if (loginType === LoginTypes.SIGN_IN) {
-            return "Sign in";
-        }
-        return "Sign up";
-    }
+    const renderButtonText = () => loginType === LoginTypes.SIGN_IN ? "Sign in" : "Sign up";
+
     const toggleLoginType = () => {
         if (loginType === LoginTypes.SIGN_IN) {
             setLoginType(LoginTypes.SIGN_UP);
