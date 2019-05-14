@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import Bcrypt from "bcryptjs";
+import { FormGroup, InputGroup, Button } from "@blueprintjs/core";
+import "@blueprintjs/core/lib/css/blueprint.css";
 
-import { createUser, fetchUser, IUser } from "./actions";
+import { fetchUser, IUser, createUserWithRails, createUser } from "./actions";
+import "./loginContainer.css";
 
 enum LoginTypes {
     SIGN_IN = "SIGN_IN",
@@ -17,6 +20,8 @@ export const LoginContainer: React.FC<ILoginContainerProps> = (props: ILoginCont
     const [ password, setPassword ] = useState("");
     const [ loginType, setLoginType ] = useState(LoginTypes.SIGN_IN);
 
+    const isButtonDisabled = () => username === "" || password === "";
+    
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (loginType === LoginTypes.SIGN_IN) {
@@ -34,6 +39,7 @@ export const LoginContainer: React.FC<ILoginContainerProps> = (props: ILoginCont
                     const user = await createUser(username, hash);
                     props.onSuccess(user);
                 });
+
             });
         }
     }
@@ -69,11 +75,25 @@ export const LoginContainer: React.FC<ILoginContainerProps> = (props: ILoginCont
         );
     }
     return(
-        <div className="form-container">
-            <form onSubmit={handleSubmit} className="form">
-                <input type="text" name="username" onChange={handleUsernameChange} />
-                <input type="password" name="password" onChange={handlePasswordChange} />
-                <button type="submit">{renderButtonText()}</button>
+        <div className="login-form-container">
+            <form onSubmit={handleSubmit}>
+                <FormGroup
+                    className="login-form-input"
+                    label="Username"
+                    labelFor="username"
+                    labelInfo="(required)"
+                >
+                    <InputGroup id="username" autoFocus={true} onChange={handleUsernameChange} placeholder="Username" />
+                </FormGroup>
+                <FormGroup
+                    className="login-form-input"
+                    label="Password"
+                    labelFor="password"
+                    labelInfo="(required)"
+                >
+                    <InputGroup id="password" type="password"  onChange={handlePasswordChange} placeholder="Password" />
+                </FormGroup>
+                <Button type="submit" disabled={isButtonDisabled()}>{renderButtonText()}</Button>
             </form>
             {renderToggleSection()}
         </div>
