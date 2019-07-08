@@ -3,7 +3,7 @@ import Bcrypt from "bcryptjs";
 import { FormGroup, InputGroup, Button } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 
-import { fetchUser, IUser, createUserWithRails, createUser } from "./actions";
+import { fetchUser, createUser } from "./actions";
 import "./loginContainer.css";
 
 enum LoginTypes {
@@ -12,7 +12,7 @@ enum LoginTypes {
 }
 
 interface ILoginContainerProps {
-    onSuccess(user: IUser): void;
+    onSuccess(user: any): void;
 }
 
 export const LoginContainer: React.FC<ILoginContainerProps> = (props: ILoginContainerProps) => {
@@ -25,12 +25,13 @@ export const LoginContainer: React.FC<ILoginContainerProps> = (props: ILoginCont
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (loginType === LoginTypes.SIGN_IN) {
-            const user = await fetchUser(username, password);
-            Bcrypt.compare(password, user.fields.password, function(err, isLoginValid) {
+            const user = await fetchUser(username);
+            Bcrypt.compare(password, user.password_hash, function(err, isLoginValid) {
                 if (isLoginValid) {
                     props.onSuccess(user);
                 } else {
-                    
+                    // TODO: Handle error case
+                    console.log("bad login");
                 }
             });
         } else {
