@@ -20,18 +20,11 @@ export class CurrentChatRoom extends React.Component<ICurrentChatRoomProps, ICur
         if (this.props.messages === undefined) {
             return <span>No chat selected</span>;
         }
-        if (this.props.messages.length === 0) {
-            return <span>No messages in this chat</span>
-        }
+
         return (
             <div className="current-chat-room">
                 <div className="current-chat-room__messages">
-                    {this.props.messages.map(message => (
-                        <div className={classNames("chat-room-message", { "chat-room-message__self": this.props.currentUserId === message.senderId })}>
-                            <strong>{message.senderId}</strong>
-                            <div>{message.parts.map((part: any) => part.payload.content)}</div>
-                        </div>
-                    ))}
+                    {this.renderMessages()}
                 </div>
                 <div className="current-chat-room__input-wrapper">
                     <form className="current-chat-room__form" onSubmit={this.handleSendMessage}>
@@ -40,6 +33,23 @@ export class CurrentChatRoom extends React.Component<ICurrentChatRoomProps, ICur
                 </div>
             </div>
         );
+    }
+
+    private renderMessages = () => {
+        if (this.props.messages === undefined) {
+            return null;
+        }
+        
+        if (this.props.messages.length === 0) {
+            return <div>No messages in this chat</div>
+        } else {
+            return this.props.messages.map(message => (
+                <div className={classNames("chat-room-message", { "chat-room-message__self": this.props.currentUserId === message.senderId })}>
+                    <strong>{message.senderId}</strong>
+                    <div>{message.parts.map((part: any) => part.payload.content)}</div>
+                </div>
+            ))
+        }
     }
 
     private handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
