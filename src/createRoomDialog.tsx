@@ -1,5 +1,7 @@
 import * as React from "react";
-import { Dialog, FormGroup, InputGroup, Classes, Button, TagInput, Checkbox } from "@blueprintjs/core";
+import { Dialog, FormGroup, InputGroup, Classes, Button, Checkbox } from "@blueprintjs/core";
+import { ItemRenderer, MultiSelect } from "@blueprintjs/select";
+import { fetchAllUsernames } from "./actions";
 
 interface ICreateRoomDialogProps {
     isOpen: boolean;
@@ -8,6 +10,7 @@ interface ICreateRoomDialogProps {
 }
 
 interface ICreateRoomDialogState {
+    availableUsernames: string[];
     isPrivate: boolean;
     name: string;
     usernames: string[];
@@ -15,9 +18,14 @@ interface ICreateRoomDialogState {
 
 export class CreateRoomDialog extends React.Component<ICreateRoomDialogProps> {
     public state: ICreateRoomDialogState = {
+        availableUsernames: [],
         isPrivate: false,
         name: "",
         usernames: [],
+    }
+
+    public componentDidMount() {
+        this.load();
     }
     
     public render() {
@@ -49,13 +57,19 @@ export class CreateRoomDialog extends React.Component<ICreateRoomDialogProps> {
                         label="Users"
                         helperText={undefined}
                     >
-                        <TagInput
+                        <MultiSelect<string>
+                            items={this.state.availableUsernames}
+                            itemRenderer={this.renderUsername}
+                            onItemSelect={this.handleSelectUsername}
+                            tagRenderer={this.renderUsernameTag}
+                        />
+                        {/* <TagInput
                             placeholder="Add users…"
                             onKeyDown={this.handleTagInputKeyDown}
                             onChange={this.handleChangeUsernames}
                             tagProps={{ minimal: true }}
                             values={this.state.usernames}
-                        />
+                        /> */}
                     </FormGroup>
                     <FormGroup>
                         <Checkbox checked={this.state.isPrivate} label="Private" onChange={this.toggleIsPrivate} />
@@ -77,6 +91,23 @@ export class CreateRoomDialog extends React.Component<ICreateRoomDialogProps> {
                 </form>
             </Dialog>
         );
+    }
+
+    private renderUsernameTag = (username: string) => {
+        console.log("tag", username);
+        return <span>{username}</span>;
+    }
+
+    private handleSelectUsername = (username: string) => {
+        this.setState((state: ICreateRoomDialogState) => {
+            return {
+                usernames: state.usernames.concat(username),
+            };
+        });
+    }
+
+    private renderUsername = (username: string) => {
+        return <div>{username}</div>;
     }
 
     private toggleIsPrivate = () => {
@@ -105,5 +136,10 @@ export class CreateRoomDialog extends React.Component<ICreateRoomDialogProps> {
 
     private closeCreateRoomDialog = () => {
         this.props.onClose();
+    }
+
+    private load = async () => {
+        const usernames = await fetchAllUsernames();
+        this.setState({ availableUsernames: usernames });
     }
 }

@@ -57,3 +57,20 @@ export async function loginUser(name: string, password: string): Promise<any> {
         });
     })
 }
+
+export async function fetchAllUsernames(): Promise<any> {
+    return new Promise ((resolve, reject) => {
+        return $.ajax({
+            headers: RAILS_AUTH_HEADER,
+            method: "GET",
+            url: "/api/v1/chatkit_users",
+            contentType: "application/json",
+            success: (response) => {
+                resolve(response.usernames);
+            },
+            error: (error) => {
+                reject(error);
+            },
+        });
+    })
+}
