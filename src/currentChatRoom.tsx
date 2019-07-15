@@ -1,5 +1,7 @@
 import * as React from "react";
 import classNames from "classnames";
+import Microlink from '@microlink/react'
+import { isValidURL } from "./utils";
 
 interface ICurrentChatRoomProps {
     currentUserId: string;
@@ -25,6 +27,7 @@ export class CurrentChatRoom extends React.Component<ICurrentChatRoomProps, ICur
             <div className="current-chat-room">
                 <div className="current-chat-room__messages">
                     {this.renderMessages()}
+                    {/* <Microlink url="https://soundcloud.com/flipboit4midles/sad-peach" /> */}
                 </div>
                 <div className="current-chat-room__input-wrapper">
                     <form className="current-chat-room__form" onSubmit={this.handleSendMessage}>
@@ -46,7 +49,20 @@ export class CurrentChatRoom extends React.Component<ICurrentChatRoomProps, ICur
             return this.props.messages.map(message => (
                 <div className={classNames("chat-room-message", { "chat-room-message__self": this.props.currentUserId === message.senderId })}>
                     <strong>{message.senderId}</strong>
-                    <div>{message.parts.map((part: any) => part.payload.content)}</div>
+                    <div className="chat-room-message__content">{message.parts.map((part: any) => {
+                        if (isValidURL(part.payload.content)) {
+                            return (
+                                <Microlink
+                                    style={{
+                                        maxWidth: "none",
+                                    }}
+                                    textAlign="right"
+                                    url={part.payload.content}
+                                />
+                            )
+                        }
+                        return part.payload.content;
+                    })}</div>
                 </div>
             ))
         }
