@@ -3,7 +3,7 @@ import Bcrypt from "bcryptjs";
 import { FormGroup, InputGroup, Button } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 
-import { fetchUser, createUser } from "./actions";
+import { loginUser, createUser } from "./actions";
 import "./loginContainer.css";
 
 enum LoginTypes {
@@ -24,25 +24,8 @@ export const LoginContainer: React.FC<ILoginContainerProps> = (props: ILoginCont
     
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (loginType === LoginTypes.SIGN_IN) {
-            const user = await fetchUser(username);
-            Bcrypt.compare(password, user.password_hash, function(err, isLoginValid) {
-                if (isLoginValid) {
-                    props.onSuccess(user);
-                } else {
-                    // TODO: Handle error case
-                    console.log("bad login");
-                }
-            });
-        } else {
-            Bcrypt.genSalt(10, (err, salt) => {
-                Bcrypt.hash(password, salt, async function(err, hash) {
-                    const user = await createUser(username, hash);
-                    props.onSuccess(user);
-                });
-
-            });
-        }
+        const user = await (loginType === LoginTypes.SIGN_IN ? loginUser(username, password) : createUser(username, password));
+        props.onSuccess(user);
     }
     const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUsername(event.currentTarget.value);

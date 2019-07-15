@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import './App.css';
 import { MainPage } from "./mainPage";
 import { LoginContainer } from './loginContainer';
 import "@blueprintjs/core/lib/css/blueprint.css";
+import { DIRECT_MUSIC_USER_ID_KEY } from './actions';
 
 enum LandingPageTypes {
   LOGIN = "LOGIN",
@@ -21,20 +22,23 @@ const DUMMY_USER = {
 
 const App: React.FC = () => {
   // TODO: Store user sessions in the browser (?)
-  const [ landingPageType, setLandingPageType ] = useState(LandingPageTypes.LOGIN);
-  const [ currentUser, setCurrentUser ] = useState<any | undefined>(undefined);
-  const handleLoginSuccess = (user: any) => {
-    setLandingPageType(LandingPageTypes.MAIN);
+  const [ currentUser, setCurrentUser ] = useState("");
+  useEffect(() => {
+    const existingUserId = localStorage.getItem(DIRECT_MUSIC_USER_ID_KEY);
+    if (existingUserId != null) {
+      setCurrentUser(existingUserId);
+    }
+  }, []);
+  const handleLoginSuccess = (user: string) => {
     setCurrentUser(user);
   };
   return (
     <div className="App">
-      <MainPage chatkitId="paul" />
-      {/* {landingPageType === LandingPageTypes.LOGIN ? (
+      {currentUser === "" ? (
         <LoginContainer onSuccess={handleLoginSuccess} />
       ) : (
-        <MainPage user={DUMMY_USER} />
-      )} */}
+        <MainPage chatkitId={currentUser} />
+      )}
     </div>
   );
 }
